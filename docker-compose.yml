@@ -1,0 +1,92 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:15
+    container_name: booking_db
+    env_file:
+      - .env-non-dev
+    ports:
+      - 5432:5432
+    volumes:
+      - ${VOLUME_POSTGRESDATA}:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: booking_redis
+
+  booking:
+    build:
+      context: .
+    container_name: booking_app
+    env_file:
+      - .env-non-dev
+    depends_on:
+      - db
+      - redis
+    command: ["/booking/docker/app.sh"]
+    ports:
+      - 9000:8000
+    # healthcheck:
+    #   test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
+    #   interval: 20s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 10s
+
+  celery:
+    build:
+      context: .
+    container_name: booking_celery
+    # command: ["/booking/docker/celery.sh", "celery"]
+    command: sh -c "poetry run celery --app=app.tasks.celery:celery worker -l INFO"
+    env_file:
+      - .env-non-dev
+    depends_on:
+      - redis
+      # booking:
+      #   condition: service_healthy
+
+  flower:
+    build:
+      context: .
+    container_name: booking_flower
+    # command: ["/booking/docker/celery.sh", "flower"]
+    command: sh -c "poetry run celery --app=app.tasks.celery:celery flower"
+    env_file:
+      - .env-non-dev
+    depends_on:
+      - redis
+      # booking:
+      #   condition: service_healthy
+    ports:
+      - 9050:8050
+
+  prometheus:
+    image: prom/prometheus:v2.43.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/prometheus
+      - ${VOLUME_PROMETHEUSDATA}:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    restart: unless-stopped
+    ports:
+      - 9090:9090
+
+  grafana:
+     image: grafana/grafana-enterprise
+     container_name: grafana
+     volumes:
+       - ${VOLUME_GRAFANADATA}:/var/lib/grafana
+     restart: unless-stopped
+     user: '0'
+     ports:
+       - '3000:3000'
+
+  # volumes:
+  #   ${VOLUME_POSTGRESDATA}:
+  #   ${VOLUME_GRAFANADATA}:
+  #   ${VOLUME_PROMETHEUSDATA}:
