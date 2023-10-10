@@ -7,9 +7,10 @@
 
 ## Настройка
 Настройка осуществляется через редактирование двух конфигов переменных окружения в корне проекта:
-- `.env`         (dev)
+- `.env`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(dev)
 - `.env-non-dev` (prod)
-Ниже приведены переменные окружения (в скобках {} - указаны пользовательские данные)
+
+Ниже приведены переменные окружения *(в скобках {} - указаны пользовательские данные)*
 ```
 MODE=DEV
 LOG_LEVEL=INFO
@@ -43,14 +44,20 @@ CELERY_BROKER=redis://localhost
 ### Для запуска в dev
 Запустятся: `uvicorn`, `postgresql`, `redis`, `celery`-`flower`
 ```
+# первичная подготовка
 pip install poetry
 poetry install
+
+# запуск
 poetry run python ./app.py
 ```
 
 ### Для запуск в prod через Docker compose
-Запустятся аналогичные контейнеры `Docker`'а, только вместо `Uvicorn` запуск через `Gunicorn`
+Запустятся аналогичные `Docker` контейнеры, только вместо `Uvicorn` будет `Gunicorn`
 ```
+# первичная подготовка
 sudo docker compose --env-file .env-non-dev build
+
+# запуск
 sudo docker compose --env-file .env-non-dev up
 ```
