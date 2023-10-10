@@ -7,7 +7,7 @@
 
 ## Настройка
 Настройка осуществляется через редактирование двух конфигов переменных окружения в корне проекта:
-- `.env`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(dev)
+- `.env`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(dev)
 - `.env-non-dev` (prod)
 
 Ниже приведены переменные окружения *(в скобках {} - указаны пользовательские данные)*
